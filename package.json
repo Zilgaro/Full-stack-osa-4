@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node_modules/.bin/jest --verbose",
     "watch": "node_modules/.bin/nodemon index.js",
     "start": "node index.js",
     "lint": "node_modules/.bin/eslint ."
@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/Zilgaro/Full-stack-osa-4#readme",
   "devDependencies": {
+    "jest": "^22.1.4",
     "nodemon": "^1.14.12"
   },
   "dependencies": {
