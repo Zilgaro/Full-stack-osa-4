@@ -1,12 +1,13 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
-const totalLikes = require('../utils/list_helper').totalLikes
+const favouriteBlog = require('../utils/list_helper').favouriteBlog
 
 blogsRouter.get('/', (request, response) => {
 
   Blog
     .find({})
     .then(blogs => {
+      console.log(favouriteBlog(blogs))
       response.json(blogs)
     })
 })
