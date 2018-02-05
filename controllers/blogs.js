@@ -1,13 +1,13 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
-const favouriteBlog = require('../utils/list_helper').favouriteBlog
+const mostBlogs = require('../utils/list_helper').mostBlogs
 
 blogsRouter.get('/', (request, response) => {
 
   Blog
     .find({})
     .then(blogs => {
-      console.log(favouriteBlog(blogs))
+      console.log(mostBlogs(blogs))
       response.json(blogs)
     })
 })
