@@ -1,7 +1,9 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
+const totalLikes = require('../utils/list_helper').totalLikes
 
 blogsRouter.get('/', (request, response) => {
+
   Blog
     .find({})
     .then(blogs => {
