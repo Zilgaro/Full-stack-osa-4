@@ -17,7 +17,12 @@ module.exports = Blog
 app.use(cors())
 app.use(bodyParser.json())
 
-const mongoUrl = 'mongodb://localhost/bloglist'
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
+
+
+const mongoUrl = process.env.MONGODB_URI
 mongoose.connect(mongoUrl)
 mongoose.Promise = global.Promise
 
@@ -39,7 +44,7 @@ app.post('/api/blogs', (request, response) => {
     })
 })
 
-const PORT = 3003
+const PORT = process.env.PORT || 3003
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
