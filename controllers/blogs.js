@@ -6,14 +6,20 @@ blogsRouter.get('/', async (request, response) => {
     response.json(blogs)
 })
 
-blogsRouter.post('/', (request, response) => {
-  const blog = new Blog(request.body)
+blogsRouter.post('/', async (request, response) => {
+    try {
+        const blog = new Blog(request.body)
 
-  blog
-    .save()
-    .then(result => {
-      response.status(201).json(result)
-    })
+        if (blog.title === undefined || blog.author === undefined || blog.url === undefined || blog.likes === undefined) {
+            return response.status(400).json({ error: 'required fields are missing' })
+        }
+
+        const savedBlog = await blog.save()
+        response.status(201).json(savedBlog)
+    } catch (exception) {
+        console.log(exception)
+        response.status(500).json({ error: 'something went wrong...' })
+    }
 })
 
 module.exports = blogsRouter
