@@ -7,6 +7,7 @@ const mongoose = require('mongoose')
 const middleware = require('./utils/middleware')
 const config = require('./utils/config')
 const blogsRouter = require('./controllers/blogs')
+const usersRouter = require('./controllers/users')
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
@@ -17,6 +18,7 @@ app.use(bodyParser.json())
 app.use(middleware.logger)
 
 app.use('/api/blogs', blogsRouter)
+app.use('/api/users', usersRouter)
 
 app.use(middleware.error)
 
