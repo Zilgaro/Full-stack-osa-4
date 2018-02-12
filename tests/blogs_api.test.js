@@ -4,7 +4,9 @@ const api = supertest(app)
 const Blog = require('../models/blog')
 const helper = require('./test_helper')
 
-
+afterAll(() => {
+    server.close()
+})
 describe('when there is initially some notes saved', async () => {
 
     beforeAll(async () => {
@@ -47,16 +49,19 @@ describe('addition of new blog', async () => {
             .expect(201)
             .expect('Content-Type', /application\/json/)
 
+        const blogsAfter = await helper.blogsInDb()
+
         const response = await api
             .get('/api/blogs')
 
         const contents = response.body.map(r => r.title)
 
-        expect(response.body.length).toBe(blogsAtStart.length + 1)
+        expect(blogsAfter.length).toBe(blogsAtStart.length + 1)
         expect(contents).toContain('Testaamisen sietämätön keveys')
     })
 
     test('POST /api/blogs fails with proper statuscode if required fields are missing', async () => {
+
         const newBlog = {
             author: 'Verne'
         }
@@ -150,8 +155,4 @@ describe('updating a blog', async () => {
 
         expect(blogAfterUpdate.likes).toBe(updatedBlog.likes)
     })
-})
-
-afterAll(() => {
-    server.close()
 })
