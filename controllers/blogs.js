@@ -10,8 +10,12 @@ blogsRouter.post('/', async (request, response) => {
     try {
         const blog = new Blog(request.body)
 
-        if (blog.title === undefined || blog.author === undefined || blog.url === undefined || blog.likes === undefined) {
+        if (blog.title === undefined || blog.author === undefined || blog.url === undefined) {
             return response.status(400).json({ error: 'required fields are missing' })
+        }
+
+        if (blog.likes === undefined) {
+            blog.likes = 0
         }
 
         const savedBlog = await blog.save()

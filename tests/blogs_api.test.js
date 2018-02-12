@@ -71,6 +71,27 @@ describe('addition of new blog', async () => {
 
         expect(blogsAfterOperation.length).toBe(blogsAtStart.length)
     })
+
+    test('If POST /api/blogs called with missing like field it is set to 0', async () => {
+        const newBlog = {
+            author: 'Verne',
+            title: 'Nobody likes me',
+            url: 'http://myster.io'
+        }
+
+        const blogsAtStart = await blogsInDb()
+
+        const response = await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(201)
+
+        expect(response.body.likes).toBe(0)
+
+        const blogsAfterOperation = await blogsInDb()
+
+        expect(blogsAfterOperation.length).toBe(blogsAtStart.length + 1)
+    })
 })
 
 afterAll(() => {
