@@ -123,6 +123,35 @@ describe('deletion of a blog', async () => {
     })
 })
 
+describe('updating a blog', async () => {
+    let addedBlog
+
+    beforeAll(async () => {
+        addedBlog = new Blog({
+            author: 'päivitys',
+            title: 'päivitys',
+            url: 'päivitys'
+        })
+        await addedBlog.save()
+    })
+
+    test('PUT /api/blogs/:id successful updating of likes with proper statuscode', async () => {
+        const updatedBlog = {
+            ...helper.format(addedBlog),
+            likes: 10
+        }
+
+        await api
+            .put(`/api/blogs/${addedBlog._id}`)
+            .send(updatedBlog)
+            .expect(200) //ohjeistuksen mukaan, lähde: rfc2616 https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
+
+        const blogAfterUpdate = await helper.findInDbById(addedBlog._id)
+
+        expect(blogAfterUpdate.likes).toBe(updatedBlog.likes)
+    })
+})
+
 afterAll(() => {
     server.close()
 })
