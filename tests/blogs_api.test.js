@@ -2,8 +2,7 @@ const supertest = require('supertest')
 const { app, server } = require('../index')
 const api = supertest(app)
 const Blog = require('../models/blog')
-const initialBlogs = require('../utils/listOfBlogs')
-const {format, blogsInDb} = require('./test_helper')
+const helper = require('./test_helper')
 
 
 describe('when there is initially some notes saved', async () => {
@@ -11,7 +10,7 @@ describe('when there is initially some notes saved', async () => {
     beforeAll(async () => {
         await Blog.remove({})
 
-        const blogObjects = initialBlogs.map(b => new Blog(b))
+        const blogObjects = helper.initialBlogs.map(b => new Blog(b))
         await Promise.all(blogObjects.map(b => b.save()))
     })
 
@@ -19,7 +18,7 @@ describe('when there is initially some notes saved', async () => {
         const response = await api
             .get('/api/blogs')
 
-        expect(response.body.length).toBe(initialBlogs.length)
+        expect(response.body.length).toBe(helper.initialBlogs.length)
     })
 
     test('blogs are returned as json', async () => {
@@ -40,6 +39,8 @@ describe('addition of new blog', async () => {
             likes: 9001
         }
 
+        const blogsAtStart = await helper.blogsInDb()
+
         await api
             .post('/api/blogs')
             .send(newBlog)
@@ -51,7 +52,7 @@ describe('addition of new blog', async () => {
 
         const contents = response.body.map(r => r.title)
 
-        expect(response.body.length).toBe(initialBlogs.length + 1)
+        expect(response.body.length).toBe(blogsAtStart.length + 1)
         expect(contents).toContain('Testaamisen sietämätön keveys')
     })
 
@@ -60,14 +61,14 @@ describe('addition of new blog', async () => {
             author: 'Verne'
         }
 
-        const blogsAtStart = await blogsInDb()
+        const blogsAtStart = await helper.blogsInDb()
 
         await api
             .post('/api/blogs')
             .send(newBlog)
             .expect(400)
 
-        const blogsAfterOperation = await blogsInDb()
+        const blogsAfterOperation = await helper.blogsInDb()
 
         expect(blogsAfterOperation.length).toBe(blogsAtStart.length)
     })
@@ -79,7 +80,7 @@ describe('addition of new blog', async () => {
             url: 'http://myster.io'
         }
 
-        const blogsAtStart = await blogsInDb()
+        const blogsAtStart = await helper.blogsInDb()
 
         const response = await api
             .post('/api/blogs')
@@ -88,7 +89,7 @@ describe('addition of new blog', async () => {
 
         expect(response.body.likes).toBe(0)
 
-        const blogsAfterOperation = await blogsInDb()
+        const blogsAfterOperation = await helper.blogsInDb()
 
         expect(blogsAfterOperation.length).toBe(blogsAtStart.length + 1)
     })
