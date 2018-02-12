@@ -1,5 +1,6 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
+const jwt = require('jsonwebtoken')
 const User = require('../models/user')
 
 blogsRouter.get('/', async (request, response) => {
@@ -10,9 +11,24 @@ blogsRouter.get('/', async (request, response) => {
     response.json(blogs.map(Blog.format))
 })
 
+const getTokenFrom = (request) => {
+    const authorization = request.get('authorization')
+    if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+        return authorization.substring(7)
+    }
+    return null
+}
+
+
 blogsRouter.post('/', async (request, response) => {
+    const body = request.body
     try {
-        const body = request.body
+        const token = getTokenFrom(request)
+        const decodedToken = jwt.verify(token, process.env.SECRET)
+
+        if (!token || !decodedToken.id) {
+            return response.status(401).json({ error: 'token missing or invalid' })
+        }
 
         if (body.title === undefined || body.author === undefined || body.url === undefined) {
             return response.status(400).json({ error: 'required fields are missing' })
@@ -22,10 +38,7 @@ blogsRouter.post('/', async (request, response) => {
             body.likes = 0
         }
 
-        const users = await User
-            .find({})
-
-        const user = users[0]
+        const user = await User.findById(decodedToken.id)
 
         const blog = new Blog({
             title: body.title,
@@ -43,8 +56,12 @@ blogsRouter.post('/', async (request, response) => {
 
         response.status(201).json(savedBlog)
     } catch (exception) {
-        console.log(exception)
-        response.status(500).json({ error: 'something went wrong...' })
+        if (exception.name === 'JsonWebTokenError' ) {
+            response.status(401).json({error: exception.message})
+        } else {
+            console.log(exception)
+            response.status(500).json({error: 'something went wrong...'})
+        }
     }
 })
 
